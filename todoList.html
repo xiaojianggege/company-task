@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.8/vue.common.dev.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        ul li {
+            list-style: none;
+        }
+
+        hr {
+            width: 100%;
+            margin: 30px 0;
+            background-color: rgb(240, 233, 233);
+            opacity: 0.8;
+            height: 1px;
+            border: none;
+        }
+
+        #app {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #F6F6F6;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .title {
+            font-size: 30px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .main ul li {
+            width: 500px;
+            height: 40px;
+            background-color: #fff;
+            border: 1px solid rgb(236, 232, 232);
+            font-size: 14px;
+            padding-left: 20px;
+            line-height: 40px;
+        }
+
+        ul li span,
+        ul li input {
+            vertical-align: middle;
+        }
+
+        ul li span {
+            margin-left: 10px;
+        }
+
+        .checked {
+            background-color: #DFF1DB !important;
+            text-decoration: line-through;
+        }
+
+        .wrapper {
+            display: flex;
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .task span {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 20px;
+        }
+
+        .task input {
+            flex: 1;
+            padding: 8px 0 8px 10px;
+            border: 2px solid #e6e2e2;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: row-reverse;
+        }
+
+        .button {
+            margin-top: 20px;
+            font-size: 14px;
+            float: left;
+            padding: 8px 15px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            background-color: #3378B9;
+        }
+    </style>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <div class="title"> {{ title }} </div>
+        <div class="main">
+            <ul>
+                <li v-for='item in todoList' :key='item.id' :class="{ checked: item.checked }">
+                    <input :checked='item.checked' type="checkbox" @click="handler(item.id)">
+                    <span>{{ item.thing }}</span>
+                </li>
+                <li>{{complated}}已完成 / {{total}}总数 </li>
+            </ul>
+        </div>
+        <hr />
+        <div class="task">
+            <span>Task</span>
+            <input type="text" v-model='taskValue' placeholder="你想做点什么" />
+        </div>
+
+        <div class="wrapper">
+            <div class="button" @click="addTask">Save task</div>
+        </div>
+    </div>
+    <script>
+        let app = new Vue({
+            el: '#app',
+            data: {
+                title: 'Vue Todo',
+                taskValue: '',
+                total: 4,
+                complated: 0,
+                todoList: [{
+                    id: 0,
+                    thing: '吃饭',
+                    checked: false
+                },
+                {
+                    id: 1,
+                    thing: '睡觉',
+                    checked: false
+                },
+                {
+                    id: 2,
+                    thing: '上班',
+                    checked: false
+                },
+                {
+                    id: 3,
+                    thing: '新增Vue测试',
+                    checked: false
+                }]
+            },
+            methods: {
+                handler(id) {
+                    this.todoList.forEach(item => {
+                        if (item.id === id) {
+                            item.checked = !item.checked
+                            item.checked ? this.complated++ : this.complated--
+                        }
+                    });
+                },
+                addTask() {
+                    if (this.taskValue.trim() == '') {
+                        alert('task不能为空')
+                    } else {
+                        this.total++
+                        this.todoList.push({
+                            id: this.total,
+                            thing: this.taskValue,
+                            checked: false
+                        })
+                        this.taskValue = ''
+                    }
+                    console.log(this.todoList);
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
