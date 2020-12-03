@@ -144,8 +144,8 @@
             data: {
                 title: 'Vue Todo',
                 taskValue: '',
-                total: 4,
-                complated: 0,
+                // total: 4,
+                // complated: 0,
                 todoList: [{
                     id: 0,
                     thing: '吃饭',
@@ -172,7 +172,6 @@
                     this.todoList.forEach(item => {
                         if (item.id === id) {
                             item.checked = !item.checked
-                            item.checked ? this.complated++ : this.complated--
                         }
                     });
                 },
@@ -180,7 +179,6 @@
                     if (this.taskValue.trim() == '') {
                         alert('task不能为空')
                     } else {
-                        this.total++
                         this.todoList.push({
                             id: this.total,
                             thing: this.taskValue,
@@ -190,7 +188,16 @@
                     }
                     console.log(this.todoList);
                 }
+            },
+            computed: {
+                total() {
+                    return this.todoList.length
+                },
+                complated() {
+                    return this.todoList.filter( item => item.checked).length
+                }
             }
+            
         })
     </script>
 </body>
