@@ -51,6 +51,7 @@ class SignUpDialog extends React.Component {
         )
     }
 }
+
 class Index extends React.Component {
     constructor(props){
         super(props);

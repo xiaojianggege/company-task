@@ -1,184 +1,57 @@
 import React from 'react';
 import ReactDom from 'react-dom';
+import {createStore} from "redux";
 import './1.css'
 
-class Conclusion extends React.Component{
-    constructor(props){
-        super(props)
-    }
 
-    render(){
-        return (
-            <li>
-                <span>{this.props.completedTotal}已完成 / {this.props.listLength}总数</span>
-            </li>
-        )
-    }
-}
+const Counter = ({value, onIncrement,  onDecrement}) => ( // 直接解构props中的value, onIncrement, onDecrement
+    <div>
+        <h1>
+            {value}
+        </h1>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={onDecrement}>-</button>
+    </div>
+)
 
-class DoThing extends React.Component{
-    constructor(props){
-        super(props)
-    }
-
-    ChangeStatus = (e) => {
-        const id = this.props.id
-        this.props.changeStatus(id, e.target.checked)
-    }
-
-    render(){
-        const thing = this.props.thing
-        return (
-            <li className={this.props.completed ? 'checked' : ''}>
-                <input type='checkbox' onClick={this.ChangeStatus}/>
-                <span>{thing}</span>
-            </li>
-        )
-    }
-}
-class TodoListContent extends React.Component{
-    constructor(props){
-        super(props)
-    }
-
-    render(){
-        const todoList = this.props.todoList
-        const doThingDom = todoList.map(item => <DoThing changeStatus={this.props.onChangeCompleted} thing={item.thing}
-                                                         id={item.id} key={item.id} completed={item.completed}/>)
-        const onCompletedTotal = todoList.filter(item => item.completed === true).length
-        const onListLength = todoList.length
-        return (
-            <div className='main'>
-                <ul>
-                    {doThingDom}
-                    <Conclusion completedTotal={onCompletedTotal} listLength={onListLength}/>
-                </ul>
-            </div>
-        )
+const reducer = (state = 0, action) => { // store中用于计算的reducer函数接受两个参数，
+                                                    // 第一个参数是数据state，第二个参数是action，也就是用于描述state变化的一个对象
+    switch (action.type) {
+        case 'INCREMENT':
+            return state + 1
+        case 'DECREMENT':
+            return state -  1
+        default:
+            return state
     }
 }
 
-class AddTask extends React.Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            todoThing: ''
-        }
-    }
+const store = createStore(reducer) // createStore是redux自带用来生成store的方法，可接受多个参数，在这里是接收一个reducer用来做数据的处理
 
-    addTodoThing = () => {
-        const todoThing = this.state.todoThing
-        if (!todoThing.trim()){
-            alert('请输入要添加的事情')
-            return
-        }
-        this.props.addThing(todoThing)
-    }
-    changeTodoThing = (e) => {
-        this.setState({todoThing: e.target.value})
-    }
-
-    render(){
-        const todoThing = this.state.todoThing
-        return (
-            <div className='task-wrapper'>
-                <div className='task'>
-                    <span>Task</span>
-                    <input placeholder='你想做点什么' value={todoThing} onChange={this.changeTodoThing}></input>
-                </div>
-
-
-                <div className='wrapper'>
-                    <div className='button' onClick={this.addTodoThing}>Save Task</div>
-                </div>
-            </div>
-        )
-    }
+const render = () => {// render函数做该页面的渲染操作
+    ReactDom.render(
+        <Counter value={store.getState()}
+             // 通过dispatch将type为 'INCREMENT' 的action提交到store，又因为在创建store时把 处理数据的reducer 当作参数传递了给createStore
+             // 所以 只要组件把action通过dispatch提交到store，store中的reducer就会根据其action的type值自动进行处理，并返回更新之后的值
+                 onIncrement={() => {store.dispatch({type: 'INCREMENT'})}}
+                 onDecrement={() => {store.dispatch({type: 'DECREMENT'})}}
+        />,
+        document.getElementById('container')
+    )
 }
-
-class TodoWrapper extends React.Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            todoList: [
-                {
-                    id: 0,
-                    thing: '吃饭',
-                    completed: false
-                },
-                {
-                    id: 1,
-                    thing: '睡觉',
-                    completed: false
-                },
-                {
-                    id: 2,
-                    thing: '上班',
-                    completed: false
-                },
-                {
-                    id: 3,
-                    thing: '新增Vue测试',
-                    completed: false
-                }],
-            thingID: 3 // 用来保存时间的id属性
-        }
-    }
-
-    changeCompleted = (id,completed) => {
-        let todoList = this.state.todoList
-        todoList = todoList.map(item => {
-            if (item.id === id){
-                item.completed = completed
-                return item
-            }
-            return item
-        })
-        this.setState({
-            todoList
-        },() => {
-            console.log(this.state.todoList)
-        })
-    }
-    onAddThings = (thing) => {
-        const thingID = this.state.thingID+1
-        const todoList = this.state.todoList
-        todoList.push({
-            id: thingID,
-            thing,
-            completed: false
-        })
-        this.setState({todoList,thingID})
-    }
-
-    render(){
-        const todoList = this.state.todoList
-        return (
-            <div className='app'>
-                <div className='title'>
-
-                     React Todo
-
-                </div>
-
-                <TodoListContent onChangeCompleted={this.changeCompleted} todoList={todoList}/>
-                <AddTask addThing={this.onAddThings}/>
-            </div>
-        )
-    }
-}
-
-class Index extends React.Component{
-    constructor(props){
-        super(props);
-    }
-
-    render(){
-        return <TodoWrapper/>
-    }
-}
-
-ReactDom.render(
-    <Index></Index>,
-    document.getElementById('container')
-);
+render()
+store.subscribe(render)
+// class Index extends React.Component{
+//     constructor(props){
+//         super(props);
+//     }
+//
+//     render(){
+//         return </>
+//     }
+// }
+//
+// ReactDom.render(
+//     <Index></Index>,
+//     document.getElementById('container')
+// );
