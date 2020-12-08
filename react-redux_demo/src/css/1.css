@@ -1,0 +1,170 @@
+div {
+    box-sizing: border-box;
+}
+.order-wrapper {
+    width: 100%;
+    margin: 10px 0;
+    background-color: #fff;
+}
+.order-info {
+    background-color: #E4F0FD;
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+}
+.order-info input,
+.order-info span{
+    vertical-align: middle;
+}
+.order-info span{
+    margin-left: 5px;
+}
+.wait-send {
+    background-color: #26C4D1;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 2px 5px;
+}
+.blue {
+    color: #1890FF;
+}
+.blue-icon {
+    font-size: 18px;
+     color: #1890FF;
+ }
+.gary-icon {
+    color: #9D9E9F !important;
+    font-size: 16px !important;
+}
+.deepen {
+    font-weight: 700;
+    margin-left: 10px !important;
+}
+
+/*内容盒子*/
+.order-content {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eae3e3;
+}
+.commodity-wrapper {
+    padding-right: 20px;
+    display: flex;
+    flex: 0.5;
+    justify-content: space-between;
+    font-size: 12px;
+}
+.left {
+    display: flex;
+    flex: 1;
+}
+.commodity-pic {
+    width: 60px;
+}
+.commodity-pic img {
+    width: 100% ;
+}
+.commodity-pic {
+    margin-right: 10px;
+}
+.commodity-info {
+    font-size: 12px;
+}
+.commodity-title {
+    color: #1890FF;
+    margin-bottom: 1px;
+}
+.commodity-size {
+    margin-bottom: 6px;
+}
+.status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    background-color: #FFEFEF;
+    padding: 5px 10px;
+    width: 140px;
+
+}
+.status span {
+    color: #F69974;
+}
+.set-abbreviation {
+    color: #1890FF;
+}
+.check {
+    margin-left: 10px;
+    padding: 1px 3px;
+    border: 1px solid #F69974;
+    border-radius: 10px;
+}
+.received-info {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    flex: 0.15;
+    margin: 12px 0;
+    padding: 20px 16px;
+    border-left: 1px solid #f5f1f1;
+    border-right: 1px solid #eae3e3;
+    color: #b1adad;
+    font-size: 12px;
+}
+
+.received-container {
+    margin-bottom: 8px;
+}
+.count {
+    margin-left: 10px;
+    color: #ef4c0f;
+    font-weight: 700;
+}
+.order-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 0.35;
+    margin: 12px 60px 12px 0;
+    padding: 14px 16px;
+    font-size: 12px;
+    overflow: hidden;
+}
+.order-detail span{
+    margin-left: 6px;
+    font-size: 12px;
+    vertical-align: middle;
+}
+.ship {
+    background-color: #1890FF;
+    padding: 4px 0;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    color: #ffffff;
+    width: 70px;
+    margin-left: 8px;
+    text-align: center;
+}
+.print-blue {
+    color: #1890FF;
+    padding: 2px 14px;
+    border: 1px solid #1890FF;
+}
+.print-blue:last-child {
+    margin-top: 10px;
+}
+.shopping-address {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+.address-text {
+    color: #b1adad;
+}
+.lock-outlined {
+   color: #1890FF;
+    font-size: 14px;
+}
+.lock-outlined:last-child {
+    margin: 0 6px 0 -8px;
+}

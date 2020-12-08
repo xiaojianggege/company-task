@@ -4,19 +4,21 @@ import { createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 import { Menu } from 'antd';
 import 'antd/dist/antd.css'
-import getData from '../server/index.js'
+import getData from './server/index.js'
+import Order from './components/Order'
 // React component
-
-
+import './css/1.css'
 
 class App extends React.Component {
     state = {
-        current: 'mail',
+        current: 'undelivered',
     };
 
     handleClick = e => {
         console.log('click ', e);
-        this.setState({ current: e.key });
+        this.setState({ current: e.key }, () => {
+            console.log(this.state.current)
+        });
     };
     componentDidMount(){
         getData('https://trade.aiyongtech.com/aiyongTrade/base.list.get?appName=guanDian&pddApp=guandian&storeId=PDD')
@@ -46,6 +48,7 @@ class App extends React.Component {
                         已成功
                     </Menu.Item>
                 </Menu>
+                <Order />
             </div>
         );
     }
