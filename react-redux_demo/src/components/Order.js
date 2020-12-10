@@ -9,15 +9,39 @@ const statusObj = {
 class Order extends  React.Component {
     constructor(props){
         super(props);
+        this.state = {
+            isSelected: false
+        }
+    }
+    componentDidMount(){
+        this.setState({
+            isSelected: this.props.isSelected
+        })
+    }
+    componentWillReceiveProps(nextProps,nextContext){
+        if(nextProps.isSelected !== this.props.isSelected) {
+            if(this.state.isSelected !== nextProps.isSelected) {
+                this.setState({
+                    isSelected: nextProps.isSelected
+                })
+            }
+        }
+    }
+
+    onChangeIsSelected = e => {
+        const checked = e.target.checked
+        this.props.changeSelectNum(checked)
+        this.setState({
+            isSelected: checked
+        })
     }
     render() {
+        const {isSelected} = this.state
         const {status, tid, created, pic_path, title,
                receiver_name, receiver_phone, receiver_city ,
                 receiver_town, receiver_address
                } = this.props.orderInfo
         const order = this.props.orderInfo.orders.order[0]
-
-
         //Refund用来控制这条order订单是否有 退款成功和查看退款这个结构，如果status为'WAIT_SELLER_SEND_GOODS',则没有
         const Refund = status !== 'WAIT_SELLER_SEND_GOODS' ?
                                     (<div className='status'>
@@ -43,7 +67,7 @@ class Order extends  React.Component {
             <div className="order-wrapper">
                 {/*第一个盒子存放上部内容（订单信息）*/}
                 <div className="order-info">
-                    <input type='checkbox' />
+                    <input type='checkbox'  onClick={this.onChangeIsSelected} checked={isSelected}  readOnly/>
                     <span className={`type-status ${status}`}>{ statusObj[status] }</span>
                     <MessageOutlined className='blue-icon' />
                     <span className='blue'>联系买家</span>

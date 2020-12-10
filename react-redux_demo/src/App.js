@@ -3,65 +3,63 @@ import PropTypes from 'prop-types'
 import { createStore, compose, applyMiddleware } from 'redux'
 import { Provider, connect } from 'react-redux'
 import thunk from 'redux-thunk'
-import { Menu } from 'antd';
+import { Menu, Pagination  } from 'antd';
 import 'antd/dist/antd.css'
 import getData from './server/index.js'
 import Order from './components/Order'
 // React component
 import './css/1.css'
-import isRecenlty from './untils/isRecenlty'
-import mapDispatchToProps from "react-redux/lib/connect/mapDispatchToProps";
+
+
 
 
 //action
-const Initialize = {
-    type: 'INITIALIZE',
-    payload: []
+
+const initState = {
+    tradeList: [],
+    total_results: 0,
+    curStatus: 'WAIT_SELLER_SEND_GOODS',
+    pageSize: 50,
+    pageNo: 1,
+    sortBy: 'create_time_desc',
 }
 
-const reducer = (state = { tradeList: [], curStatus: 'WAIT_SELLER_SEND_GOODS'}, action) => {
+const reducer = (state = initState, action) => {
     const { type, payload } =  action
-    const { tradeList } = state
     switch (type) {
         case 'INITIALIZE':
             return {
                 ...state,
                 tradeList: payload
             }
-        case 'WAIT_SELLER_SEND_GOODS' :
-            return {
-                ...state,
-                curStatus: "WAIT_SELLER_SEND_GOODS"
+        case 'TOTAL_RESULTS':
+            return  {
+                ...state, total_results: payload
             }
-        case 'RECENTLY':
+        case 'CUR_STATUS':
             return {
                 ...state,
-                curStatus: 'recently'
+                curStatus: payload
             }
-        case 'REFUND':
-            return {
+        case 'PAGE_SIZE' :
+            return  {
                 ...state,
-                curStatus: 'refund'
+                pageSize: payload
             }
-        case 'TRADE_FINISHED':
+        case 'PAGE_NO':
             return {
                 ...state,
-                curStatus: "TRADE_FINISHED"
-            }
-        case 'WAIT_BUYER_CONFIRM_GOODS':
-            return {
-                ...state,
-                curStatus: "WAIT_BUYER_CONFIRM_GOODS"
+                pageNo: payload
             }
         default:
             return  state
     }
 }
-let mid=[thunk]
+
 const store = createStore(
     reducer,
     compose(
-        applyMiddleware(...mid),
+        applyMiddleware(thunk),
         window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
     )
 )
@@ -69,77 +67,172 @@ const store = createStore(
 const mapStateToProps = (state) => {
     return {
         tradeList: state.tradeList,
-        curStatus: state.curStatus
+        total_results: state.total_results,
+        curStatus: state.curStatus,
+        pageSize: state.pageSize,
+        pageNo: state.pageNo,
+        sortBy: state.sortBy,
     }
 }
 
 class AiStore extends React.Component {
     constructor(props){
         super(props);
+        this.state = {
+            selectedNum: 0,
+            isAllSelected: false,
+        }
     }
 
-    handleClick = e => {
-       const { dispatch } = this.props
-        dispatch({
-            type: e.key.toUpperCase()
+
+    // 初始化数据函数
+    initTarde = (pageSize, pageNo, curStatus, sortBy) => {
+        console.log('接口参数', pageSize, pageNo, curStatus, sortBy)
+        this.props.dispatch(async dispatch => {
+            const res = await getData({
+                pageSize,
+                pageNo,
+                sortBy,
+                status: curStatus
+            })
+            let tradeList, total_results;
+            if (!res.trades) {
+                tradeList = []
+                total_results = 0
+            } else {
+                tradeList = res.trades.trade
+                total_results = res.total_results}
+
+            console.log(tradeList)
+            dispatch({
+                type: 'INITIALIZE',
+                payload: tradeList
+            })
+            dispatch({
+                type: 'TOTAL_RESULTS',
+                payload: total_results
+            })
         })
-    };
+    }
+
+    // 受控组件函数，传递给子组件 来改变selectedNum的值
+    onChangeSelectNum = checked => {
+        let {selectedNum} = this.state
+        checked ? selectedNum++ : selectedNum--
+        this.setState({
+            selectedNum
+        })
+    }
+
+    // 改变每页显示的条数
+    onShowSizeChange = (current, pageSize) => {
+        const { dispatch } = this.props
+        dispatch({
+            type: 'PAGE_SIZE',
+            payload: pageSize
+        })
+    }
+
+    changeCurrent = current => {
+        const { dispatch } = this.props
+        dispatch({
+            type: 'PAGE_NO',
+            payload: current
+        })
+    }
+
+
+    // 改变status的状态
+    handleClick = e => {
+        const { dispatch } = this.props
+        dispatch({
+            type: 'CUR_STATUS',
+            payload: e.key
+        })
+    }
 
     componentDidMount(){
+        const {pageSize, pageNo, curStatus, sortBy} = this.props
         this.props.dispatch(async dispatch => {
-            const tradeList = await getData('https://trade.aiyongtech.com/aiyongTrade/base.list.get?appName=guanDian&pddApp=guandian&storeId=PDD')
-            console.log(tradeList)
-            Initialize.payload = tradeList
-            dispatch(Initialize)
+            const res = await getData({
+                pageSize,
+                pageNo,
+                sortBy,
+                status: curStatus
+            })
+            const tradeList = res.trades.trade
+            const total_results = res.total_results
+            dispatch({
+                type: 'INITIALIZE',
+                payload: tradeList
+            })
+            dispatch({
+                type: 'TOTAL_RESULTS',
+                payload: total_results
+            })
         })
     }
 
-    render() {
-        const { curStatus, tradeList } = this.props;
-        // 拿到最近三个月内订单的数量
-        const renceltyNum = tradeList.reduce((total, cur) => {
-           return isRecenlty(cur.created) ? ++total : total
-        }, 0)
-        // 拿到待发货的数量
-        const undeliveredNum = tradeList.reduce((total, cur) => {
-            return cur.status == 'WAIT_SELLER_SEND_GOODS' ? ++total : total
-        }, 0)
-        // 拿到已完成的数量
-        const completedNum = tradeList.reduce((total, cur) => {
-            return cur.status == 'TRADE_FINISHED' ? ++total : total
-        }, 0)
-        // 拿到已发货的数量
-        const deliveredNum = tradeList.reduce((total, cur) => {
-            return cur.status == 'WAIT_BUYER_CONFIRM_GOODS' ? ++total : total
-        }, 0)
-        let tradeListMap = []
-        if(curStatus === 'recently') {
-            tradeListMap = tradeList
-        } else {
-            tradeListMap = tradeList.filter( item => item.status === curStatus)
+    componentWillReceiveProps(nextProps,nextContext){
+        const {pageSize, pageNo, curStatus, sortBy} = nextProps
+        if(this.props.pageSize !== pageSize || this.props.pageNo !== pageNo || this.props.curStatus !== curStatus) {
+            this.initTarde(pageSize, pageNo, curStatus, sortBy)
         }
-        const TradeListDom = tradeListMap.map( item => <Order key={item.created} orderInfo={item} /> )
+    }
+
+    // 控制全选按钮函数
+    onChangeIsAllSelected = (e, length) => {
+        let selectedNum = 0
+        if(e.target.checked) {
+            selectedNum = length
+        }
+        this.setState({
+            isAllSelected: e.target.checked,
+            selectedNum
+        })
+    }
+    render() {
+        const { tradeList, total_results, curStatus, pageNo, pageSize} = this.props;
+        const {selectedNum, isAllSelected} = this.state
+
+        const TradeListDom = tradeList.map( item => <Order changeSelectNum={this.onChangeSelectNum} isSelected={isAllSelected} key={item.created} orderInfo={item}  /> )
+        const len = TradeListDom.length
         return (
             <div className="App">
                 <Menu onClick={this.handleClick} selectedKeys={[curStatus]} mode="horizontal">
                     <Menu.Item key="recently" >
-                       近三个月({renceltyNum})
+                       近三个月({total_results})
                     </Menu.Item>
                     <Menu.Item key="WAIT_SELLER_SEND_GOODS" >
-                        待发货({undeliveredNum})
+                        待发货({total_results})
                     </Menu.Item>
                     <Menu.Item key="WAIT_BUYER_CONFIRM_GOODS">
-                        已发货({deliveredNum})
+                        已发货({total_results})
                     </Menu.Item>
-                    <Menu.Item key="refund">
+                    <Menu.Item key="TRADE_REFUND">
                         退款中
                     </Menu.Item>
                     <Menu.Item key="TRADE_FINISHED">
-                        已成功({completedNum})
+                        已成功({total_results})
                     </Menu.Item>
                 </Menu>
                 {TradeListDom}
+                <div className='footer'>
+                    <div className='allSelect'>
+                        <input type='checkbox' onClick={(e) => { this.onChangeIsAllSelected(e, len) }}  checked={isAllSelected} readOnly/> <span>全选(已选{selectedNum})</span>
+                    </div>
+                    <Pagination
+                    showSizeChanger
+                    onShowSizeChange={this.onShowSizeChange}
+                    defaultCurrent={1}
+                    current={pageNo}
+                    pageSize={pageSize}
+                    total={total_results}
+                    onChange={this.changeCurrent}
+                    />
+                </div>
             </div>
+
         );
     }
 }
