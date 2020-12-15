@@ -6,7 +6,6 @@ class Conclusion extends React.Component{
     constructor(props){
         super(props)
     }
-
     render(){
         return (
             <li>
@@ -15,9 +14,6 @@ class Conclusion extends React.Component{
         )
     }
 }
-
-
-
 
 class AddTask extends React.Component{
     constructor(props){
